@@ -1,0 +1,60 @@
+services:
+  gitlab:
+    image: gitlab/gitlab-ce:latest
+    restart: always
+    hostname: localhost
+    container_name: gitlab
+    environment:
+      GITLAB_OMNIBUS_CONFIG: |
+        # Add any other gitlab.rb configuration here, each on its own line
+        external_url 'https://localhost'
+        letsencrypt['enable'] = false
+        nginx['proxy_protocol'] = false
+        nginx['listen_port'] = 80
+        nginx['listen_https'] = false
+        nginx['real_ip_trusted_address'] = ["192.168.0.0/20"]
+        nginx['real_ip_header'] = 'X-Forwarded-For'
+        nginx['real_ip_recursive'] = 'on'
+        nginx['proxy_set_headers'] = {
+          "X-Forwarded-Proto" => "http"
+        }
+        puma['exporter_enabled'] = true
+    volumes:
+      - ./config:/etc/gitlab
+      - ./logs:/var/log/gitlab
+      - ./data:/var/opt/gitlab
+    shm_size: '256m'
+    networks:
+      - gitnet
+  haproxy:
+    image: haproxy:latest
+    restart: always
+    container_name: haproxy
+    hostname: haproxy
+    ports:
+      - 80:80
+      - 22:2222
+      - 443:443
+      - 3000:3000 # grafana
+      - 9090:9090 # prometheus
+    volumes:
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:rw
+      - ./haproxy/certs/ssl.pem:/usr/local/etc/haproxy/certs/ssl.pem:ro
+    networks:
+      - gitnet
+  grafana:
+    image: grafana/grafana:latest
+    restart: unless-stopped
+    container_name: grafana
+    hostname: grafana
+    user: '0'
+    volumes:
+      - ./grafana:/var/lib/grafana/:rw
+    networks:
+      - gitnet
+networks:
+  gitnet:
+    name: gitnet
+    ipam:
+      config:
+        - subnet: 192.168.0.0/20
