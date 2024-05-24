@@ -9,7 +9,6 @@ services:
         # Add any other gitlab.rb configuration here, each on its own line
         external_url 'https://localhost'
         letsencrypt['enable'] = false
-        nginx['proxy_protocol'] = false
         nginx['listen_port'] = 80
         nginx['listen_https'] = false
         nginx['real_ip_trusted_address'] = ["192.168.0.0/20"]
@@ -18,7 +17,19 @@ services:
         nginx['proxy_set_headers'] = {
           "X-Forwarded-Proto" => "http"
         }
-        puma['exporter_enabled'] = true
+        nginx['status'] = {
+          "enable" => true,
+          "listen_addresses" => ["127.0.0.1"],
+          "port" => 9999,
+          "vts_enable" => true,
+          "options" => {
+            "server_tokens" => "off",
+            "access_log" => "off",
+            "allow" => "127.0.0.1",
+            "deny" => "all"
+            }
+        }
+        node_exporter['enable'] = true
     volumes:
       - ./config:/etc/gitlab
       - ./logs:/var/log/gitlab
@@ -36,7 +47,7 @@ services:
       - 22:2222
       - 443:443
       - 3000:3000 # grafana
-      - 9090:9090 # prometheus
+      - 9090:9090 # prometheus (This is the Prom server bundled with Gitlab)
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:rw
       - ./haproxy/certs/ssl.pem:/usr/local/etc/haproxy/certs/ssl.pem:ro
