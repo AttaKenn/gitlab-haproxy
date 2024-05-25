@@ -7,10 +7,10 @@ services:
     environment:
       GITLAB_OMNIBUS_CONFIG: |
         # Add any other gitlab.rb configuration here, each on its own line
-        external_url 'https://localhost'
+        external_url 'https://gitlab' # `gitlab` used for local setup purpose
         letsencrypt['enable'] = false
-        nginx['listen_port'] = 80
-        nginx['listen_https'] = false
+        nginx['listen_port'] = 80 # Nginx is to expect an http traffic forwarded from HAProxy
+        nginx['listen_https'] = false # Set to false due to SSL termination at the HAProxy side
         nginx['real_ip_trusted_address'] = ["192.168.0.0/20"]
         nginx['real_ip_header'] = 'X-Forwarded-For'
         nginx['real_ip_recursive'] = 'on'
@@ -47,9 +47,9 @@ services:
       - 22:2222
       - 443:443
       - 3000:3000 # grafana
-      - 9090:9090 # prometheus (This is the Prom server bundled with Gitlab)
+      - 9090:9090 # prometheus (bundled with Gitlab)
     volumes:
-      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:rw
+      - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
       - ./haproxy/certs/ssl.pem:/usr/local/etc/haproxy/certs/ssl.pem:ro
     networks:
       - gitnet
