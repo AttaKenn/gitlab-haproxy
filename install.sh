@@ -28,11 +28,11 @@ fi
 # Check Docker Compose version
 echo "Checking Docker Compose version..."
 if command -v docker-compose &> /dev/null; then
-  compose_version=$(docker-compose --version | awk -F '[ ,.]' '{print $3}')
-  if (( compose_version >= 2 )); then
-    echo "Docker Compose version 2 or later is installed."
+  compose_version=$(docker-compose --version | awk -F '[ ,.]' '{print $4}')
+  if (( compose_version == V2 )); then
+    echo "Docker Compose version 2 is installed."
   else
-    echo "Docker Compose version is less than 2."
+    echo "Docker Compose version is not version 2."
   fi
 else
   echo "Docker Compose is not installed."
@@ -40,7 +40,7 @@ else
 fi
 
 # Prompt user for action if versions are not sufficient
-if (( docker_version < 25 || compose_version < 2 )); then
+if (( docker_version < 25 || compose_version != V2 )); then
   echo "Docker or Docker Compose versions are not sufficient."
   echo "Choose an option:"
   select opt in "Install newer versions" "Move on with current versions" "Abort program"; do
