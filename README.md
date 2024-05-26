@@ -2,6 +2,12 @@
 
 This repository builds upon the [gitlab](https://github.com/AttaKenn/gitlab) by introducing a setup with enhanced monitoring, improved performance and security.
 
+> Note: I have written this [bash script](./install.sh) to simplify the setup for you. You can go through the script, then download and run it to simplify the setup for you.
+
+```sudo chmod +x install.sh```
+
+```sudo ./install.sh```
+
 ## Updates Included:
 
 ### 1. Reverse Proxy Implementation with HAProxy
