@@ -50,7 +50,8 @@ services:
       - 9090:9090 # prometheus (bundled with Gitlab)
     volumes:
       - ./haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg:ro
-      - ./haproxy/certs/ssl.pem:/usr/local/etc/haproxy/certs/ssl.pem:ro
+    # Uncomment line below after generating your own self-signed certificate  
+    #  - ./haproxy/certs/ssl.pem:/usr/local/etc/haproxy/certs/ssl.pem:ro
     networks:
       - gitnet
   grafana:
